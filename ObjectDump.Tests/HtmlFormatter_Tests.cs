@@ -19,8 +19,6 @@ namespace ObjectDump.Tests
         [Fact]
         public void TestMethod1()
         {
-            HtmlFormatter formatter = new HtmlFormatter();
-
             var test = new
             {
                 String = "This is a string",
@@ -34,7 +32,8 @@ namespace ObjectDump.Tests
 
             using (StringWriter writer = new StringWriter())
             {
-                formatter.Format(obj, writer);
+                HtmlFormatter formatter = new HtmlFormatter(writer);
+                formatter.Format(obj);
 
                 string htmlTable = writer.ToString();
                 _output.WriteLine(htmlTable);

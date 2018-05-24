@@ -9,20 +9,20 @@ namespace MiP.ObjectDump
     {
         public static string ToHtml<T>(T item)
         {
-            HtmlFormatter formatter = new HtmlFormatter();
-
             var serializer = new JsonSerializer()
             {
                 Converters = { new StringEnumConverter() },
                 TypeNameHandling = TypeNameHandling.All
             };
 
-            JObject jobject = JObject.FromObject(item, serializer);
+            JToken token = JToken.FromObject(item, serializer);
             using (StringWriter writer = new StringWriter())
             {
+                HtmlFormatter formatter = new HtmlFormatter(writer);
+
                 Html.WriteBeginHtml(writer, true, "Title TBD", Html.GetDefaultStyles());
 
-                formatter.Format(jobject, writer);
+                formatter.Format(token);
 
                 Html.WriteEndHtml(writer);
 

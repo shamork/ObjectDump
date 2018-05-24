@@ -24,7 +24,7 @@ table {
 
 td {
     padding: 1pt;
-    border-top: 1pt solid #bababa;
+    border: 1pt solid #aaaaaa;
     margin: 0;
 }
 
@@ -34,14 +34,21 @@ td {
     font-weight: bold;
 }
 
-.propertyName {
+.property, .arrayColumn {
     font-weight: bold;
     background-color: #dddddd;
-    border-right: 1px solid #999999;
+    border: 1px solid #aaaaaa;
+    color: black;
 }
 
-.typeName {
+.type {
     background-color: var(--dark-blue);
     color: white;
     font-weight: bold;
+}
+
+.value {
+    background-color: white;
+    font-weight: normal;
+    color: black;
 }
