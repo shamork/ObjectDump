@@ -1,0 +1,47 @@
+﻿:root {
+    --dark-blue: #187cc7;
+}
+
+* {
+    margin: 0;
+    vertical-align: text-top;
+}
+
+html {
+    font-family: Tahoma, Verdana, sans-serif;
+    font-size: 10pt;
+}
+
+body
+{
+    margin: 5pt;
+}
+
+table {
+    border: 2pt solid var(--dark-blue);
+    border-collapse: collapse;
+}
+
+td {
+    padding: 1pt;
+    border-top: 1pt solid #bababa;
+    margin: 0;
+}
+
+.null {
+    color: darkgreen;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.propertyName {
+    font-weight: bold;
+    background-color: #dddddd;
+    border-right: 1px solid #999999;
+}
+
+.typeName {
+    background-color: var(--dark-blue);
+    color: white;
+    font-weight: bold;
+}
