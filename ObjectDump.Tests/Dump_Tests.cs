@@ -44,7 +44,7 @@ namespace MiP.ObjectDump.Tests
                     new{Name="Someone", Bla="Blubber"},
                     new{Bla="Blubb"},
 
-                   
+
 
                     new List<string> { "Seven","Eight", "between Eight and Nine", "Nine" }
                 },
@@ -66,17 +66,11 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_ViaReflection_Simple()
         {
-            try
-            {
-                string html = Dump.ToHtml(GetTestObject());
+            string html = Dump.ToHtml(GetTestObject());
 
-                string filename = Guid.NewGuid() + ".html";
-                File.WriteAllText(filename, html);
-                Process.Start(filename);
-            }catch(Exception ex)
-            {
-
-            }
+            string filename = Guid.NewGuid() + ".html";
+            File.WriteAllText(filename, html);
+            Process.Start(filename);
         }
 
         [Fact]

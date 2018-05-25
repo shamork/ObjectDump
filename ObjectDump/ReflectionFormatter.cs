@@ -361,7 +361,9 @@ namespace MiP.ObjectDump
             if (itemType.GetInterfaces()
                 .Any(i => i.IsGenericType 
                         && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-            { return false; }
+            {
+                return false;
+            }
 
             Write("<table>");
 
