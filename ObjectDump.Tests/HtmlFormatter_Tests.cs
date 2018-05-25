@@ -32,7 +32,7 @@ namespace ObjectDump.Tests
 
             using (StringWriter writer = new StringWriter())
             {
-                HtmlFormatter formatter = new HtmlFormatter(writer);
+                JObjectFormatter formatter = new JObjectFormatter(writer);
                 formatter.Format(obj);
 
                 string htmlTable = writer.ToString();

@@ -7,7 +7,7 @@ namespace MiP.ObjectDump
 {
     public static class Dump
     {
-        public static string ToHtml<T>(T item)
+        public static string ViaJObject<T>(T item)
         {
             var serializer = new JsonSerializer()
             {
@@ -19,11 +19,27 @@ namespace MiP.ObjectDump
             JToken token = JToken.FromObject(item, serializer);
             using (StringWriter writer = new StringWriter())
             {
-                HtmlFormatter formatter = new HtmlFormatter(writer);
+                JObjectFormatter formatter = new JObjectFormatter(writer);
 
                 Html.WriteBeginHtml(writer, true, "Title TBD", Html.GetDefaultStyles());
 
                 formatter.Format(token);
+
+                Html.WriteEndHtml(writer);
+
+                return writer.ToString();
+            }
+        }
+
+        public static string ToHtml(object item)
+        {
+            using (StringWriter writer = new StringWriter())
+            {
+                var formatter = new ReflectionFormatter(writer);
+
+                Html.WriteBeginHtml(writer, true, "Title TBD", Html.GetDefaultStyles());
+
+                formatter.Format(item);
 
                 Html.WriteEndHtml(writer);
 
