@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Xunit;
@@ -17,7 +18,9 @@ namespace MiP.ObjectDump.Tests
                 Date = DateTime.Now,
                 SubObject = new { Id = 29, Name = "Sub object 1" },
                 Null = (string)null,
+                Empty = "",
                 Strings = new[] { "One", "Two", "Three" },
+                List = new List<string> { "Four", "Five", "Six" },
 
                 ComplexArray = new object[]
                 {
@@ -27,7 +30,8 @@ namespace MiP.ObjectDump.Tests
                     new{Name="Du", Id=2},
                     new{Name="Er", Id=3},
                     new{Bla="Blubb"},
-                    new[]{5,6,7,8}
+                    new[]{4,5,6},
+                    new List<string> { "Seven","Eight", "between Eight and Nine", "Nine" }
                 }
             };
 

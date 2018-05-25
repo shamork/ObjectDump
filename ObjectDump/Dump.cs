@@ -12,7 +12,8 @@ namespace MiP.ObjectDump
             var serializer = new JsonSerializer()
             {
                 Converters = { new StringEnumConverter() },
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.All,
+                TypeNameAssemblyFormatHandling =  TypeNameAssemblyFormatHandling.Simple
             };
 
             JToken token = JToken.FromObject(item, serializer);

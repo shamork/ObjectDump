@@ -1,5 +1,7 @@
 ﻿:root {
     --dark-blue: #187cc7;
+    --table-border: 2pt solid var(--dark-blue);
+    --table-grid: 1px solid #aaaaaa;
 }
 
 * {
@@ -18,13 +20,13 @@ body
 }
 
 table {
-    border: 2pt solid var(--dark-blue);
+    border: var(--table-border);
     border-collapse: collapse;
 }
 
 td {
     padding: 1pt;
-    border: 1pt solid #aaaaaa;
+    border: var(--table-grid);
     margin: 0;
 }
 
@@ -36,8 +38,8 @@ td {
 
 .property, .arrayColumn {
     font-weight: bold;
-    background-color: #dddddd;
-    border: 1px solid #aaaaaa;
+    background-color: #eeeeee;
+    border: var(--table-grid);
     color: black;
 }
 
@@ -50,5 +52,17 @@ td {
 .value {
     background-color: white;
     font-weight: normal;
+    color: black;
+    border-right: var(--table-border) /* not sure, why I need this, but without tables with only 1 column will have the border from <td> */
+}
+
+.stringEmptyClass {
+    background-color: white;
+    font-family: 'Fira Code', 'Consolas', 'Lucida Console', 'Courier New', monospace;
+    font-style: italic;
+    color: blue;
+}
+
+.stringEmptyProperty {
     color: black;
 }

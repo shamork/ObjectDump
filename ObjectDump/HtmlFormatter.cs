@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,9 +23,13 @@ namespace MiP.ObjectDump
                 Format(arr);
             if (token is JValue val)
             {
-                if (ReferenceEquals(val.Value, null))
+                if (val.Type == JTokenType.Null)
                 {
                     Write("<span class='null'>null</span>");
+                }
+                else if (val.Type == JTokenType.String && string.Empty.Equals(val.Value))
+                {
+                    Write("<span class='stringEmptyClass'>string<span class='stringEmptyProperty'>.Empty</span></span>");
                 }
                 else
                 {
@@ -114,7 +117,7 @@ namespace MiP.ObjectDump
 
             if (index == 0) // thats when no JObjects were in the array, just tokens or other arrays.
             {
-                columns["[]"] = index++; // create a fake column;
+                columns[$"[] ({array.Count} items)"] = index++; // create a fake column;
             }
 
             return columns;
@@ -146,6 +149,13 @@ namespace MiP.ObjectDump
 
         private void WriteArrayItem(JObject jObject, IDictionary<string, int> columns)
         {
+            JProperty values = jObject.Property("$values");
+            if (values != null)
+            {
+                WriteArrayItem((dynamic)values.Value, columns);
+                return;
+            }
+
             foreach (var column in columns.OrderBy(c => c.Value))
             {
                 if (jObject.TryGetValue(column.Key, out JToken token))
