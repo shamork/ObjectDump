@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectDump\ObjectDump.csproj">
-      <Project>{4735D278-8933-47A2-A93B-916CABE6A894}</Project>
+      <Project>{4735d278-8933-47a2-a93b-916cabe6a894}</Project>
       <Name>ObjectDump</Name>
     </ProjectReference>
   </ItemGroup>

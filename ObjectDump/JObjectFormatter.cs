@@ -6,11 +6,11 @@ using static System.FormattableString;
 
 namespace MiP.ObjectDump
 {
-    public class HtmlFormatter
+    public class JObjectFormatter
     {
         private readonly TextWriter _writer;
 
-        public HtmlFormatter(TextWriter writer)
+        public JObjectFormatter(TextWriter writer)
         {
             _writer = writer;
         }

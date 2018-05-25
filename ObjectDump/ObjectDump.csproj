@@ -36,9 +36,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dump.cs" />
-    <Compile Include="HtmlFormatter.cs" />
     <Compile Include="Html.cs" />
+    <Compile Include="JObjectFormatter.cs" />
+    <Compile Include="Model\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
