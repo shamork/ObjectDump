@@ -33,7 +33,7 @@ namespace MiP.ObjectDump
                 }
                 else
                 {
-                    Write(val); // TODO: do something to provide custom formatting
+                    Write(val);
                 }
             }
         }

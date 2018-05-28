@@ -31,7 +31,7 @@ namespace MiP.ObjectDump
             }
         }
 
-        public static string ToHtml(object item)
+        public static string ViaReflection(object item)
         {
             using (StringWriter writer = new StringWriter())
             {

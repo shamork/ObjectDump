@@ -44,12 +44,10 @@ namespace MiP.ObjectDump.Tests
                     new{Name="Someone", Bla="Blubber"},
                     new{Bla="Blubb"},
 
-
-
                     new List<string> { "Seven","Eight", "between Eight and Nine", "Nine" }
                 },
 
-                Exception = ex,
+               // Exception = ex,
             };
         }
 
@@ -66,7 +64,7 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_ViaReflection_Simple()
         {
-            string html = Dump.ToHtml(GetTestObject());
+            string html = Dump.ViaReflection(GetTestObject());
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);
@@ -76,7 +74,7 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_SimpleTypes()
         {
-            string html = Dump.ToHtml(DayOfWeek.Friday);
+            string html = Dump.ViaReflection(DayOfWeek.Friday);
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);
@@ -86,7 +84,7 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_ListTypes()
         {
-            string html = Dump.ToHtml(new[] { "One", "Two", "Three" });
+            string html = Dump.ViaReflection(new[] { "One", "Two", "Three" });
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);
@@ -107,7 +105,7 @@ namespace MiP.ObjectDump.Tests
             {
             }
 
-            string html = Dump.ToHtml(ex);
+            string html = Dump.ViaReflection(ex);
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);
@@ -117,7 +115,7 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_Type()
         {
-            string html = Dump.ToHtml(typeof(int));
+            string html = Dump.ViaReflection(typeof(int));
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);

@@ -97,8 +97,6 @@ namespace MiP.ObjectDump
             {
                 string name = property.Name;
 
-                // TODO: maximum depth for catching stack overflows, or we cannot dump a type.
-                // TODO: try to catch exception from property and display accordingly (use red color)
                 object value = property.GetValue(item);
 
                 result.Add(name, value);
@@ -341,8 +339,6 @@ namespace MiP.ObjectDump
         }
     }
 
-
-
     public class ObjectFormatter : ValueFormatter
     {
         private readonly ReflectionFormatter _formatter;
@@ -354,17 +350,6 @@ namespace MiP.ObjectDump
 
         public override bool Format(object item, Type itemType)
         {
-            // check if its a collection
-            // TODO: collection formatter before this one.
-            if (item is IEnumerable)
-                return false;
-            if (itemType.GetInterfaces()
-                .Any(i => i.IsGenericType 
-                        && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-            {
-                return false;
-            }
-
             Write("<table>");
 
             Write("<tr>");
