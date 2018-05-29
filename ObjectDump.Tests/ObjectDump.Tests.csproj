@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dump_Tests.cs" />
-    <Compile Include="HtmlFormatter_Tests.cs" />
     <Compile Include="Reflection\ReflectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -52,9 +51,6 @@
     </PackageReference>
     <PackageReference Include="more.xunit.runner.visualstudio">
       <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.2</Version>
     </PackageReference>
     <PackageReference Include="xunit">
       <Version>2.3.1</Version>
