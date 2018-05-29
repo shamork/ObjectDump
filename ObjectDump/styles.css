@@ -1,5 +1,6 @@
 ﻿:root {
     --dark-blue: #187cc7;
+    --bright-blue: #cbe9ff;
     --table-border: 2pt solid var(--dark-blue);
     --table-grid: 1px solid #aaaaaa;
 }
@@ -65,4 +66,18 @@ td {
 
 .stringEmptyProperty {
     color: black;
+}
+
+.cyclic {
+    background-color: var(--bright-blue);
+}
+
+.cyclic:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.error {
+    color: #aa0000;
+    font-weight: bold;
 }

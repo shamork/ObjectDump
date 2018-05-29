@@ -46,15 +46,13 @@ namespace MiP.ObjectDump.Tests
 
                     new List<string> { "Seven","Eight", "between Eight and Nine", "Nine" }
                 },
-
-               // Exception = ex,
             };
         }
 
         [Fact]
         public void Dump_ToHtml()
         {
-            string html = Dump.ToHtml(GetTestObject());
+            string html = Dump.ToHtml(GetTestObject(), 5);
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);

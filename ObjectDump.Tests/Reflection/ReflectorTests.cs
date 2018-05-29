@@ -10,6 +10,7 @@ namespace MiP.ObjectDump.Tests.Reflection
 {
     public class ReflectorTests
     {
+        private const string Check_if_its_a_Guid = "check if its a guid";
         private Reflector _reflector;
 
         public ReflectorTests()
@@ -167,7 +168,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", null);
             var fiveExpected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex5", null);
             expected.AddProperty("Five", fiveExpected);
-            fiveExpected.AddProperty("Four", new CyclicReference("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4"));
+            fiveExpected.AddProperty("Four", new CyclicReference("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", Check_if_its_a_Guid));
 
             result.Should().BeEquivalentTo(expected, o => o.IncludingAllRuntimeProperties()
                                                          .Using<string>(IsGuid)
@@ -187,8 +188,16 @@ namespace MiP.ObjectDump.Tests.Reflection
             }
             else
             {
-                Guid guid = Guid.Parse(a.Subject);
-                guid.Should().NotBe(Guid.Empty);
+                if (a.Expectation == Check_if_its_a_Guid)
+                {
+
+                    Guid guid = Guid.Parse(a.Subject);
+                    guid.Should().NotBe(Guid.Empty);
+                }
+                else
+                {
+                    a.Subject.Should().Be(a.Expectation);
+                }
             }
         }
 

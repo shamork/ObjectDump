@@ -19,10 +19,12 @@ namespace MiP.ObjectDump.Reflection
 
                 if (!(item is ValueType))
                 {
-                    if (_knownReferences.ContainsKey(item))
-                        return new CyclicReference(_knownReferences[item]);
-
                     // TODO: change checking for cyclic: always create objects on current object first, then members of children.
+                    if (_knownReferences.ContainsKey(item))
+                    {
+                        string typeHeader = item.GetType().ToString();
+                        return new CyclicReference(typeHeader, _knownReferences[item]);
+                    }
 
                     _knownReferences.Add(item, Guid.NewGuid().ToString());
                 }

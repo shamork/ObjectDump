@@ -41,6 +41,25 @@ namespace MiP.ObjectDump.Formatter
             Write($"<span class='error'>{error.Error}</span>");
         }
 
+        private void Format(CyclicReference reference)
+        {
+            Write("<table>");
+
+            Write("<tr>");
+            Write("<td class='type'>");
+            Write($"Cyclic reference {reference.TypeHeader}");
+            Write("</td>");
+            Write("</tr>");
+
+            Write("<tr>");
+            Write("<td class='cyclic'>");
+            Write($"To: {reference.Reference}");
+            Write("</td>");
+            Write("</tr>");
+
+            Write("</table>");
+        }
+
         private void Format(DComplex complex)
         {
             Write("<table>");
