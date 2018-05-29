@@ -72,6 +72,16 @@ namespace MiP.ObjectDump.Tests
         }
 
         [Fact]
+        public void Dump_ToHtml()
+        {
+            string html = Dump.ToHtml(GetTestObject());
+
+            string filename = Guid.NewGuid() + ".html";
+            File.WriteAllText(filename, html);
+            Process.Start(filename);
+        }
+
+        [Fact]
         public void Dump_SimpleTypes()
         {
             string html = Dump.ViaReflection(DayOfWeek.Friday);

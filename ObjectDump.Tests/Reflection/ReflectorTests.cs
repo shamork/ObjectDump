@@ -20,7 +20,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void CreatesNull()
         {
-            var result = _reflector.GetDObject(null);
+            var result = _reflector.GetDObject(null, 5);
 
             result.Should().Be(DObject.Null);
         }
@@ -28,7 +28,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_value_for_string()
         {
-            var result = _reflector.GetDObject("Hello");
+            var result = _reflector.GetDObject("Hello", 5);
 
             result.Should().BeEquivalentTo(new DValue("Hello"), o => o.IncludingAllRuntimeProperties());
         }
@@ -36,7 +36,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_value_for_int()
         {
-            var result = _reflector.GetDObject(17);
+            var result = _reflector.GetDObject(17, 5);
 
             result.Should().BeEquivalentTo(new DValue("17"), o => o.IncludingAllRuntimeProperties());
         }
@@ -44,7 +44,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_value_for_bool()
         {
-            var result = _reflector.GetDObject(true);
+            var result = _reflector.GetDObject(true, 5);
 
             result.Should().BeEquivalentTo(new DValue("True"), o => o.IncludingAllRuntimeProperties());
         }
@@ -52,7 +52,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_array_of_ints()
         {
-            var result = _reflector.GetDObject(new int[] { 1, 2, 3 });
+            var result = _reflector.GetDObject(new int[] { 1, 2, 3 }, 5);
 
             DArray expected = new DArray
             {
@@ -69,7 +69,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_array_of_strings()
         {
-            var result = _reflector.GetDObject(new string[] { "One", "Two", "Three" });
+            var result = _reflector.GetDObject(new string[] { "One", "Two", "Three" }, 5);
 
             DArray expected = new DArray
             {
@@ -86,7 +86,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_complex_with_properties()
         {
-            var result = _reflector.GetDObject(new Complex1 { Name_f = "Hello", Name_p = "World", Number_f = 17, Number_p = 42 });
+            var result = _reflector.GetDObject(new Complex1 { Name_f = "Hello", Name_p = "World", Number_f = 17, Number_p = 42 }, 5);
 
             DComplex expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex1", null);
             expected.AddProperty(nameof(Complex1.Name_f), new DValue("Hello"));  // fields will always be before properties
@@ -106,7 +106,7 @@ namespace MiP.ObjectDump.Tests.Reflection
                 new Complex2{N1="Hallo", N2="Welt"},
             };
 
-            var result = _reflector.GetDObject(complexes);
+            var result = _reflector.GetDObject(complexes, 5);
 
             var expected = new DArray();
             var dcomplex1 = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex2", null);
@@ -129,7 +129,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         [Fact]
         public void Creates_complex_and_catches_exceptions_when_reading_properties()
         {
-            var result = _reflector.GetDObject(new Complex3());
+            var result = _reflector.GetDObject(new Complex3(), 5);
 
             var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex3", null);
 
@@ -150,7 +150,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var test = new Complex4 {Five = new Complex5 {Four = new Complex4 {Five = new Complex5()}}};
 
-            var result = _reflector.GetDObject(test);
+            var result = _reflector.GetDObject(test, 5);
 
             // TODO: assert
         }
@@ -162,7 +162,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             var five = new Complex5 {Four = four};
             four.Five = five;
 
-            var result = _reflector.GetDObject(four);
+            var result = _reflector.GetDObject(four, 5);
 
             var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", null);
             var fiveExpected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex5", null);
@@ -179,7 +179,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             );
         }
 
-        public void IsGuid(IAssertionContext<string> a)
+        private void IsGuid(IAssertionContext<string> a)
         {
             if (a.Expectation == null)
             {

@@ -8,11 +8,9 @@ namespace MiP.ObjectDump.Reflection
 {
     public class Reflector
     {
-        //private readonly HashSet<object> _knownReferences = new HashSet<object>(new ObjectReferenceEqualityComparer());
-
         private readonly Dictionary<object, string> _knownReferences = new Dictionary<object, string>(new ObjectReferenceEqualityComparer());
 
-        public DObject GetDObject(object item, int depth = 5)
+        public DObject GetDObject(object item, int depth)
         {
             try
             {

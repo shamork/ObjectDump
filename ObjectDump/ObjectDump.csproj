@@ -49,6 +49,7 @@
     <Compile Include="Reflection\DValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReflectionFormatter.cs" />
+    <Compile Include="Formatter\HtmlFormatter.cs" />
     <Compile Include="Reflection\ObjectReferenceEqualityComparer.cs" />
     <Compile Include="Reflection\Reflector.cs" />
   </ItemGroup>
