@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
 using MiP.ObjectDump.Reflection;
 using System;
+
+using FluentAssertions.Equivalency;
+
 using Xunit;
 
 namespace MiP.ObjectDump.Tests.Reflection
@@ -27,7 +30,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject("Hello");
 
-            result.Should().BeEquivalentTo(new DValue("Hello"));
+            result.Should().BeEquivalentTo(new DValue("Hello"), o => o.IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -35,7 +38,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(17);
 
-            result.Should().BeEquivalentTo(new DValue("17"));
+            result.Should().BeEquivalentTo(new DValue("17"), o => o.IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -43,7 +46,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(true);
 
-            result.Should().BeEquivalentTo(new DValue("True"));
+            result.Should().BeEquivalentTo(new DValue("True"), o => o.IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -60,7 +63,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             expected.Add(new DValue("2"));
             expected.Add(new DValue("3"));
 
-            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -77,7 +80,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             expected.Add(new DValue("Two"));
             expected.Add(new DValue("Three"));
 
-            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -91,7 +94,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             expected.AddProperty(nameof(Complex1.Name_p), new DValue("World"));
             expected.AddProperty(nameof(Complex1.Number_p), new DValue("42"));
 
-            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -120,7 +123,7 @@ namespace MiP.ObjectDump.Tests.Reflection
             expected.TypeHeader = "Complex2[] (2 items)";
             expected.AddColumns(new[] { "N1", "N2" });
 
-            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -129,10 +132,79 @@ namespace MiP.ObjectDump.Tests.Reflection
             var result = _reflector.GetDObject(new Complex3());
 
             var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex3", null);
-            expected.AddProperty("Throws", new DError("This is expected"));
+
+            string systemInvalidoperationexceptionThisIsExpected = "System.InvalidOperationException: This is expected!*";
+
+            expected.AddProperty("Throws", new DError(systemInvalidoperationexceptionThisIsExpected));
             expected.AddProperty("Name", new DValue("Hello"));
 
-            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering());
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties()
+                                                         // only match first part of the exception string
+                                                         .Using<string>(a => StringMatching(a, systemInvalidoperationexceptionThisIsExpected))
+                                                         .WhenTypeIs<string>()
+            );
+        }
+
+        [Fact]
+        public void Creates_complex_with_cyclic_typing()
+        {
+            var test = new Complex4 {Five = new Complex5 {Four = new Complex4 {Five = new Complex5()}}};
+
+            var result = _reflector.GetDObject(test);
+
+            // TODO: assert
+        }
+
+        [Fact]
+        public void Creates_complex_with_cyclic_references()
+        {
+            var four = new Complex4();
+            var five = new Complex5 {Four = four};
+            four.Five = five;
+
+            var result = _reflector.GetDObject(four);
+
+            var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", null);
+            var fiveExpected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex5", null);
+            expected.AddProperty("Five", fiveExpected);
+            fiveExpected.AddProperty("Four", new CyclicReference("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4"));
+
+            result.Should().BeEquivalentTo(expected, o => o.IncludingAllRuntimeProperties()
+                                                         .Using<string>(IsGuid)
+                                                         .When(m => m.RuntimeType == typeof(string)
+                                                                    &&
+                                                                    m.SelectedMemberInfo.Name == nameof(CyclicReference.Reference)
+                                                                    &&
+                                                                    m.SelectedMemberInfo.DeclaringType == typeof(CyclicReference))
+            );
+        }
+
+        public void IsGuid(IAssertionContext<string> a)
+        {
+            if (a.Expectation == null)
+            {
+                a.Subject.Should().BeNull();
+            }
+            else
+            {
+                Guid guid = Guid.Parse(a.Subject);
+                guid.Should().NotBe(Guid.Empty);
+            }
+        }
+
+        private void StringMatching(IAssertionContext<string> a, string expectationReference)
+        {
+            if (a.Expectation == null)
+            {
+                a.Subject.Should().BeNull();
+            }
+            else
+            {
+                if (ReferenceEquals(a.Expectation, expectationReference))
+                    a.Subject.Should().Match(a.Expectation);
+                else
+                    a.Subject.Should().Be(a.Expectation);
+            }
         }
 
         private class Complex1
@@ -154,6 +226,16 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             public string Throws => throw new InvalidOperationException("This is expected!");
             public string Name => "Hello";
+        }
+
+        public class Complex4
+        {
+            public Complex5 Five;
+        }
+
+        public class Complex5
+        {
+            public Complex4 Four;
         }
     }
 }

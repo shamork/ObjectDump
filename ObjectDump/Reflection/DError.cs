@@ -1,4 +1,6 @@
-﻿namespace MiP.ObjectDump.Reflection
+﻿using System;
+
+namespace MiP.ObjectDump.Reflection
 {
     /// <summary>
     /// An error happened while reading a property value.
@@ -10,6 +12,15 @@
         public DError(string error)
         {
             Error = error;
+        }
+
+        public DError(Exception exception)
+        {
+#if DEBUG
+                Error = exception.ToString();
+#else
+                Error = exception.Message;
+#endif
         }
     }
 }

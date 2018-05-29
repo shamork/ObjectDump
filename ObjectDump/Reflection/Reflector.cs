@@ -8,37 +8,54 @@ namespace MiP.ObjectDump.Reflection
 {
     public class Reflector
     {
-        public DObject GetDObject(object item)
+        //private readonly HashSet<object> _knownReferences = new HashSet<object>(new ObjectReferenceEqualityComparer());
+
+        private readonly Dictionary<object, string> _knownReferences = new Dictionary<object, string>(new ObjectReferenceEqualityComparer());
+
+        public DObject GetDObject(object item, int depth = 5)
         {
             try
             {
                 if (item is null)
                     return DObject.Null;
 
+                if (!(item is ValueType))
+                {
+                    if (_knownReferences.ContainsKey(item))
+                        return new CyclicReference(_knownReferences[item]);
+
+                    // TODO: change checking for cyclic: always create objects on current object first, then members of children.
+
+                    _knownReferences.Add(item, Guid.NewGuid().ToString());
+                }
+
                 if (IsSimpleType(item))
                     return GetSimpleValue(item);
 
-                if (IsArrayType(item, out IEnumerable<object> items))
-                    return GetArray(items, item.GetType());
+                if (depth == 0)
+                    return new DError($"Object nesting too deep for [{item}]"); // TODO: better object string
 
-                return GetComplex(item);
+                if (IsArrayType(item, out IEnumerable<object> items))
+                    return GetArray(items, item.GetType(), depth - 1);
+
+                return GetComplex(item, depth - 1);
             }
             catch(TargetInvocationException ex)
             {
-                return new DError(ex.InnerException.ToString());
+                return new DError(ex.InnerException);
             }
             catch (Exception ex)
             {
-                return new DError(ex.ToString());
+                return new DError(ex);
             }
         }
 
-        private DObject GetComplex(object item)
+        private DObject GetComplex(object item, int depth)
         {
             Type itemType = item.GetType();
 
             string stringified = null;
-            Type declaringTypeOfToString = itemType.GetMethod("ToString").DeclaringType;
+            Type declaringTypeOfToString = itemType.GetMethod(nameof(ToString), new Type[0]).DeclaringType;
             if (declaringTypeOfToString != typeof(object) && declaringTypeOfToString != typeof(ValueType))
             {
                 // TODO: create extension point here for providing formatting
@@ -48,7 +65,7 @@ namespace MiP.ObjectDump.Reflection
             // TODO: provide nicer type formatting
             var complex = new DComplex(itemType.ToString(), stringified);
 
-            var properties = GetMembers(item, itemType);
+            var properties = GetMembers(item, itemType, depth);
 
             foreach (var property in properties)
             {
@@ -58,7 +75,7 @@ namespace MiP.ObjectDump.Reflection
             return complex;
         }
 
-        protected IDictionary<string, DObject> GetMembers(object item, Type itemType)
+        protected IDictionary<string, DObject> GetMembers(object item, Type itemType, int depth)
         {
             var fields = itemType.GetFields(BindingFlags.Instance | BindingFlags.Public);
             var properties = itemType.GetProperties(BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public);
@@ -69,33 +86,32 @@ namespace MiP.ObjectDump.Reflection
             {
                 string name = field.Name;
                 object value = field.GetValue(item);
-                result.Add(name, GetDObject(value));
+                result.Add(name, GetDObject(value, depth));
             }
 
             foreach (var property in properties)
             {
                 string name = property.Name;
 
-                // TODO: maximum depth for catching stack overflows, or we cannot dump a type.
                 try
                 {
                     object value = property.GetValue(item);
-                    result.Add(name, GetDObject(value));
+                    result.Add(name, GetDObject(value, depth));
                 }
                 catch (TargetInvocationException ex)
                 {
-                    result.Add(name, new DError(ex.InnerException.ToString()));
+                    result.Add(name, new DError(ex.InnerException));
                 }
                 catch (Exception ex)
                 {
-                    result.Add(name, new DError(ex.ToString()));
+                    result.Add(name, new DError(ex));
                 }
             }
 
             return result;
         }
 
-        private DArray GetArray(IEnumerable<object> arrayObject, Type arrayType)
+        private DArray GetArray(IEnumerable<object> arrayObject, Type arrayType, int depth)
         {
             var array = new DArray();
 
@@ -106,7 +122,7 @@ namespace MiP.ObjectDump.Reflection
 
             foreach (var item in list)
             {
-                DObject arrayItem = GetDObject(item);
+                DObject arrayItem = GetDObject(item, depth);
                 array.Add(arrayItem);
 
                 if (arrayItem is DComplex complex)
