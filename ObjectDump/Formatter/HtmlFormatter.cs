@@ -16,9 +16,22 @@ namespace MiP.ObjectDump.Formatter
             _writer = writer;
         }
 
-        public void WriteObject(DObject item)
+        public void WriteObject(DObject item, string label = null)
         {
+            if (label != null)
+            {
+                Write(
+                    $"""
+                     <div class="headingpresenter"><h1 class="headingpresenter">{label}</h1><div>
+                     """
+                );
+                WriteString(label);
+                Write("</h1><div>");
+            }
+
             Format((dynamic)item);
+            if (label != null)
+                Write("</div></div>");
         }
 
         private void Format(DObject nullValue)
@@ -43,38 +56,39 @@ namespace MiP.ObjectDump.Formatter
 
         private void Format(CyclicReference reference)
         {
-            Write("<table>");
+            var tid = tableId++;
+            WriteTableTag(tid,$" colspan='2'",$"Cyclic reference {reference.TypeHeader}");
 
-            Write("<tr>");
-            Write("<td class='type'>");
-            WriteString($"Cyclic reference {reference.TypeHeader}");
-            Write("</td>");
-            Write("</tr>");
-
-            Write("<tr>");
-            Write("<td class='cyclic'>");
+            Write(
+                $"""
+                 <th title="string">
+                 """);
             WriteString($"To: {reference.Reference}");
-            Write("</td>");
-            Write("</tr>");
+            Write(
+                $"""
+                 <span class="meta"></span></th>
+                 """);
 
             Write("</table>");
         }
 
         private void Format(DComplex complex)
         {
-            Write("<table>");
-
-            Write("<tr>");
-            Write("<td colspan='2' class='type'>");
-            WriteString(complex.TypeHeader);
-            Write("</td>");
-            Write("</tr>");
+            var tid = tableId++;
+            WriteTableTag(tid,$" colspan='2'",complex.TypeHeader);
 
             foreach (var property in complex.Properties)
             {
                 Write("<tr>");
-
-                Write(Invariant($"<td class='property'>{property.Name}</td>"));
+                Write(
+                    $"""
+                     <th class='member' title="{property.Value.GetType()}">
+                     """);
+                WriteString(property.Name);
+                Write(
+                    $"""
+                     <span class="meta"></span></th>
+                     """);
 
                 Write("<td class='value'>");
 
@@ -87,18 +101,14 @@ namespace MiP.ObjectDump.Formatter
             Write("</table>");
         }
 
+        private int tableId = 1;
         private void Format(DArray array)
         {
             int columnCount = array.Columns.Count;
             string colspan = columnCount > 1 ? $" colspan='{columnCount}'" : string.Empty;
-
-            Write("<table>");
-
-            Write("<tr>");
-            Write($"<td{colspan} class='type'>");
-            WriteString(array.TypeHeader);
-            Write("</td>");
-            Write("</tr>");
+            var tid = tableId++;
+            WriteTableTag(tid,colspan, array.TypeHeader);
+            
 
             WriteColumnHeaders(array.Columns);
 
@@ -114,6 +124,22 @@ namespace MiP.ObjectDump.Formatter
             Write("</table>");
         }
 
+        private void WriteTableTag(int tid,string colspan,string typeHeader)
+        {
+            Write($"<table id=\"t{tid}\" style=\"border-bottom: 2px solid;\">");
+            Write(
+                $"""
+                 <thead>
+                     <tr>
+                         <td class="typeheader" {colspan}><a class="typeheader" onclick="return toggle('t{tid}');"><span
+                                     class="arrow-up" id="t{tid}ud"></span>{typeHeader}</a><span
+                                 class="meta"></span></td>
+                     </tr>
+                 </thead>
+                 """
+            );
+        }
+
         private void WriteColumnHeaders(IReadOnlyDictionary<string, int> columns)
         {
             if (columns.Count <= 1)
@@ -123,9 +149,15 @@ namespace MiP.ObjectDump.Formatter
 
             foreach (var column in columns.OrderBy(c => c.Value))
             {
-                Write("<td class='arrayColumn'>");
+                Write(
+                    $"""
+                    <th title="string">
+                    """);
                 WriteString(column.Key);
-                Write("</td>");
+                Write(
+                    $"""
+                    <span class="meta"></span></th>
+                    """);
             }
 
             Write("</tr>");
@@ -133,7 +165,8 @@ namespace MiP.ObjectDump.Formatter
 
         private void WriteArrayItem(DObject item, IReadOnlyDictionary<string, int> columns, string colspan)
         {
-            Write($"<td{colspan}>");
+            var isNumber = item is DValue dv && dv.Value != null && dv.Value.All(c => (c >= '0' && c <= '9') || c == '.');
+            Write(isNumber?$"<td{colspan} class=\"n\">":$"<td{colspan}>");
             Format((dynamic)item);
             Write("</td>");
         }
