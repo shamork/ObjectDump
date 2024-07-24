@@ -33,7 +33,7 @@ namespace MiP.ObjectDump.Formatter
 
         private void Format(DValue value)
         {
-            Write(value.Value);
+            Write(value.Value.Replace("\r\n","<br>").Replace("\n","<br>"));
         }
 
         private void Format(DError error)
@@ -47,13 +47,13 @@ namespace MiP.ObjectDump.Formatter
 
             Write("<tr>");
             Write("<td class='type'>");
-            Write($"Cyclic reference {reference.TypeHeader}");
+            WriteString($"Cyclic reference {reference.TypeHeader}");
             Write("</td>");
             Write("</tr>");
 
             Write("<tr>");
             Write("<td class='cyclic'>");
-            Write($"To: {reference.Reference}");
+            WriteString($"To: {reference.Reference}");
             Write("</td>");
             Write("</tr>");
 
@@ -66,7 +66,7 @@ namespace MiP.ObjectDump.Formatter
 
             Write("<tr>");
             Write("<td colspan='2' class='type'>");
-            Write(complex.TypeHeader);
+            WriteString(complex.TypeHeader);
             Write("</td>");
             Write("</tr>");
 
@@ -96,7 +96,7 @@ namespace MiP.ObjectDump.Formatter
 
             Write("<tr>");
             Write($"<td{colspan} class='type'>");
-            Write(array.TypeHeader);
+            WriteString(array.TypeHeader);
             Write("</td>");
             Write("</tr>");
 
@@ -124,7 +124,7 @@ namespace MiP.ObjectDump.Formatter
             foreach (var column in columns.OrderBy(c => c.Value))
             {
                 Write("<td class='arrayColumn'>");
-                Write(column.Key);
+                WriteString(column.Key);
                 Write("</td>");
             }
 
@@ -159,6 +159,11 @@ namespace MiP.ObjectDump.Formatter
         private void Write(string rawHtml)
         {
             _writer.WriteLine(rawHtml);
+        }
+
+        private void WriteString(string str)
+        {
+            Write(System.Web.HttpUtility.HtmlEncode(str).Replace("\r\n","\n").Replace("\n","<br>"));
         }
     }
 }

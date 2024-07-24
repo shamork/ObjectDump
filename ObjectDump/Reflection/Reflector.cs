@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace MiP.ObjectDump.Reflection
 {
@@ -16,26 +17,29 @@ namespace MiP.ObjectDump.Reflection
             {
                 if (item is null)
                     return DObject.Null;
-
+                if (item is string st) return new DValue(st);
+                if (IsSimpleType(item))
+                    return GetSimpleValue(item);
                 if (!(item is ValueType))
                 {
                     // TODO: change checking for cyclic: always create objects on current object first, then members of children.
-                    if (_knownReferences.ContainsKey(item))
+                    if (_knownReferences.TryGetValue(item, out var reference))
                     {
-                        string typeHeader = item.GetType().ToString();
-                        return new CyclicReference(typeHeader, _knownReferences[item]);
+                        var typeHeader = item.GetType().ToString();
+                        return new CyclicReference(typeHeader, reference);
                     }
 
                     _knownReferences.Add(item, Guid.NewGuid().ToString());
                 }
 
-                if (IsSimpleType(item))
-                    return GetSimpleValue(item);
 
                 if (depth == 0)
                     return new DError($"Object nesting too deep for [{item}]"); // TODO: better object string
 
-                if (IsArrayType(item, out IEnumerable<object> items))
+                if (IsArrayType(item))
+                    return GetArray((Array)item, depth - 1);
+                
+                if (IsIEnumerable(item, out IEnumerable<object> items))
                     return GetArray(items, item.GetType(), depth - 1);
 
                 return GetComplex(item, depth - 1);
@@ -63,7 +67,7 @@ namespace MiP.ObjectDump.Reflection
             }
 
             // TODO: provide nicer type formatting
-            var complex = new DComplex(itemType.ToString(), stringified);
+            var complex = new DComplex(GetTypeName(itemType), stringified);
 
             var properties = GetMembers(item, itemType, depth);
 
@@ -111,13 +115,32 @@ namespace MiP.ObjectDump.Reflection
             return result;
         }
 
+        private DArray GetArray(Array arrayObject, int depth)
+        {
+            var array = new DArray();
+
+            var type = arrayObject.GetType();
+            array.TypeHeader = $"{type.Name} ({arrayObject.LongLength} items)";
+
+            foreach (var item in arrayObject)
+            {
+                DObject arrayItem = GetDObject(item, depth);
+                array.Add(arrayItem);
+
+                if (arrayItem is DComplex complex)
+                {
+                    array.AddColumns(complex.Properties.Select(p => p.Name));
+                }
+            }
+
+            return array;
+        }
         private DArray GetArray(IEnumerable<object> arrayObject, Type arrayType, int depth)
         {
             var array = new DArray();
 
             object[] list = arrayObject.ToArray();
-            string type = arrayType.Name;
-
+            var type = GetTypeName(arrayType);
             array.TypeHeader = $"{type} ({list.Length} items)";
 
             foreach (var item in list)
@@ -134,7 +157,39 @@ namespace MiP.ObjectDump.Reflection
             return array;
         }
 
-        private bool IsArrayType(object item, out IEnumerable<object> enumerable)
+        private static readonly (Regex Regex, string target)[] Regexes = new (Regex Regex, string target)[]
+        {
+            (new Regex(@"`\d+", RegexOptions.Compiled), string.Empty),
+            (new Regex(@"\bSystem.(\w+\.)*(\w+)\b", RegexOptions.Compiled), "$2"),
+            (new Regex(@"\bBoolean\b", RegexOptions.Compiled), "bool"),
+            (new Regex(@"\bInt8\b", RegexOptions.Compiled), "sbyte"),
+            (new Regex(@"\bUInt8\b", RegexOptions.Compiled), "byte"),
+            (new Regex(@"\bInt16\b", RegexOptions.Compiled), "short"),
+            (new Regex(@"\bUInt16\b", RegexOptions.Compiled), "ushort"),
+            (new Regex(@"\bInt32\b", RegexOptions.Compiled), "int"),
+            (new Regex(@"\bUInt32\b", RegexOptions.Compiled), "uint"),
+            (new Regex(@"\bInt64\b", RegexOptions.Compiled), "long"),
+            (new Regex(@"\bUInt64\b", RegexOptions.Compiled), "ulong"),
+            (new Regex(@"\bString\b", RegexOptions.Compiled), "string"),
+        };
+        private static string GetTypeName(Type arrayType)
+        {
+            var at = arrayType.ToString()
+                .Replace("[", "<")
+                .Replace("]", ">")
+                .Replace("<>f__AnonymousType", "AnonymousType");
+            foreach (var rp in Regexes)
+            {
+                at = rp.Regex.Replace(at, rp.target);
+            }
+            return at;
+        }
+
+        private bool IsArrayType(object item)
+        {
+            return item.GetType().IsArray;
+        }
+        private bool IsIEnumerable(object item, out IEnumerable<object> enumerable)
         {
             if (item is IEnumerable list)
             {
@@ -152,15 +207,15 @@ namespace MiP.ObjectDump.Reflection
         }
 
         private readonly Type[] _simpleTypes =
-        {
+        [
             typeof(object), typeof(bool), typeof(string),
             typeof(byte), typeof(sbyte),
             typeof(short), typeof (ushort),
             typeof(int), typeof(uint),
             typeof(long), typeof(ulong),
             typeof(decimal), typeof(double), typeof(float),
-            typeof(DateTime), typeof(TimeSpan),
-        };
+            typeof(DateTime), typeof(TimeSpan)
+        ];
 
         private bool IsSimpleType(object item)
         {

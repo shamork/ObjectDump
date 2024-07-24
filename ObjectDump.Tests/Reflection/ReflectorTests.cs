@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using MiP.ObjectDump.Reflection;
 using System;
-
+using System.Collections.Generic;
 using FluentAssertions.Equivalency;
 
 using Xunit;
@@ -67,6 +67,22 @@ namespace MiP.ObjectDump.Tests.Reflection
             result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
 
+        [Fact]
+        public void Creates_list_of_ints()
+        {
+            var result = _reflector.GetDObject(new List<int>() { 1, 2, 3 }, 5);
+
+            DArray expected = new DArray
+            {
+                TypeHeader = "List<int> (3 items)"
+            };
+
+            expected.Add(new DValue("1"));
+            expected.Add(new DValue("2"));
+            expected.Add(new DValue("3"));
+
+            result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
+        }
         [Fact]
         public void Creates_array_of_strings()
         {
