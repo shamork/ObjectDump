@@ -107,7 +107,6 @@ namespace MiP.ObjectDump
                 		return '!^§Error:' + err.toString();
                 	}
                 }
-                hideToLevel(1);
                 </script>
                 """
                 );
@@ -128,7 +127,7 @@ namespace MiP.ObjectDump
 
         public static void WriteEndHtml(TextWriter writer)
         {
-            writer.Write("</body></html>");
+            writer.Write("<script>hideToLevel(1);</script></body></html>");
         }
     }
 }
