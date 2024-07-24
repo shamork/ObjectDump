@@ -6,7 +6,7 @@ using System.IO;
 
 namespace MiP.ObjectDump
 {
-    public static class Dump
+    public static class HtmlDump
     {
         public static string ToHtml(object item, int depth = 5, string title = null)
         {

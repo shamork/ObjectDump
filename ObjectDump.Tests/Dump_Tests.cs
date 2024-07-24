@@ -52,7 +52,7 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_ToHtml()
         {
-            string html = Dump.ToHtml(GetTestObject(), 5);
+            string html = HtmlDump.ToHtml(GetTestObject(), 5);
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);
@@ -66,7 +66,7 @@ namespace MiP.ObjectDump.Tests
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}}
             };
-            string html = Dump.ToHtml(list, 5);
+            string html = HtmlDump.ToHtml(list, 5);
 
             string filename = Guid.NewGuid() + ".html";
             File.WriteAllText(filename, html);

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectDump", "ObjectDump\ObjectDump.csproj", "{4735D278-8933-47A2-A93B-916CABE6A894}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlDump", "HtmlDump\HtmlDump.csproj", "{4735D278-8933-47A2-A93B-916CABE6A894}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectDump.Tests", "ObjectDump.Tests\ObjectDump.Tests.csproj", "{3C5ED943-593D-47CA-B364-0FABA1F4B432}"
 EndProject
