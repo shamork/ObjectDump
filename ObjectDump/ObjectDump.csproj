@@ -3,10 +3,10 @@
     <RootNamespace>MiP.ObjectDump</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>ObjectDump</AssemblyTitle>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <Version>0.3.0.0</Version>
     <LangVersion>latest</LangVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>

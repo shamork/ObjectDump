@@ -22,10 +22,11 @@ namespace MiP.ObjectDump
 	                display: flex;
 	                flex-direction: column;
 	                gap: 10px;
+	                z-index: 999;
 	            }
 	            
 	            #floating-buttons button {
-	                background-color: #f0f0f0;
+	                background-color: aquamarine;
 	                border: none;
 	                padding: 5px 10px;
 	                cursor: pointer;
