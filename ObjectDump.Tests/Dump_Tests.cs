@@ -52,10 +52,11 @@ namespace MiP.ObjectDump.Tests
         [Fact]
         public void Dump_ToHtml()
         {
-            string html = HtmlDump.ToHtml(GetTestObject(), 5);
+            GetTestObject().DumpToHtml("第1次");
+            GetTestObject().DumpToHtml("第2次");
 
             string filename = Guid.NewGuid() + ".html";
-            File.WriteAllText(filename, html);
+            HtmlDump.SaveToHtmlFile(filename);
             Process.Start(filename);
         }
         [Fact]
@@ -66,10 +67,12 @@ namespace MiP.ObjectDump.Tests
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}}
             };
-            string html = HtmlDump.ToHtml(list, 5);
+            list.DumpToHtml("第1次");
+            list.DumpToHtml("第2次");
+            // string html = HtmlDump.ToHtml(list, 5);
 
             string filename = Guid.NewGuid() + ".html";
-            File.WriteAllText(filename, html);
+            HtmlDump.SaveToHtmlFile(filename);
             Process.Start(filename);
         }
     }
