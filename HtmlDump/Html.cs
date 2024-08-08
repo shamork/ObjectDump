@@ -103,11 +103,15 @@ namespace MiP.ObjectDump
 
         public static HDoc CreateHtml(bool writeDocType, string title, string styles, params object[] bodyChildren)
         {
+	 //    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		// <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		// <meta name="Generator" content="github.com/hyperlinq/hyperlinq"/>
             var doc= H.Doc(null, writeDocType,
                 H.head(
-                    H.meta(m => m.charset("utf-8")),
+                    H.meta(m => m.http_equiv("Content-Type").content("text/html;charset=utf-8")),
+                    H.meta(m => m.http_equiv("X-UA-Compatible").content("IE=edge")),
                     H.title(title),
-                    H.style(styles),
+                    H.style(s=>s.type("text/css"), styles),
                     H.script(s => s.language("JavaScript").type("text/javascript"), script)
                 ),
                 H.body(

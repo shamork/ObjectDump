@@ -22,7 +22,7 @@
     <EmbeddedResource Include="styles.css" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hyperlinq" Version="1.1.9" />
+    <PackageReference Include="Hyperlinq" Version="1.1.15" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 </Project>

@@ -177,7 +177,7 @@ namespace MiP.ObjectDump.Reflection
             var at = arrayType.ToString()
                 .Replace("[", "<")
                 .Replace("]", ">")
-                .Replace("<>f__AnonymousType", "AnonymousType");
+                .Replace("<>f__AnonymousType", "AnonymousType");//AnonymousType 替换成 ø
             foreach (var rp in Regexes)
             {
                 at = rp.Regex.Replace(at, rp.target);

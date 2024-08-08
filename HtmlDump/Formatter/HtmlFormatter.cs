@@ -28,8 +28,11 @@ namespace MiP.ObjectDump.Formatter
         {
             if (label != null)
             {
-                var children = new[] { H.h1(h => h.css("headingpresenter"), label) }
-                    .Concat((object[])Format((dynamic)item))
+                var children = new[]
+                    {
+                        H.h1(h => h.css("headingpresenter"), label),
+                        H.div((object[])Format((dynamic)item))
+                    }
                     .ToArray();
                 var divO = H.div(d => d.css("headingpresenter"), children);
                 Children.Add(divO);
@@ -40,11 +43,12 @@ namespace MiP.ObjectDump.Formatter
             if (o == null || o.Length == 0) return;
             if (o.Length == 1)
             {
-                Children.Add(o[0]);
+                var e = H.div(d => d.css("spacer"), o[0]);
+                Children.Add(e);
                 return;
             }
 
-            Children.AddRange(o);
+            Children.Add(H.div(d => d.css("spacer"), o));
         }
         // private object[] WriteObjectInner(DObject item)
         // {
@@ -177,8 +181,7 @@ namespace MiP.ObjectDump.Formatter
                 H.thead(
                     H.tr(
                         H.td(td => td.css("typeheader").colspan(colspan < 1 ? 1 : colspan),
-                            H.a(a => a.css("typeheader").onclick($"return toggle('t{tid}');"),
-                                H.span(s => s.css("arrow-up").id($"t{tid}ud"), typeHeader)),
+                            H.a(a => a.css("typeheader").onclick($"return toggle('t{tid}');"), H.span(s => s.css("arrow-up").id($"t{tid}ud")), typeHeader ),
                             CreateMetaSpan()
                         )
                     )
@@ -186,9 +189,11 @@ namespace MiP.ObjectDump.Formatter
             }.Concat(children).ToArray();
             return
             [
-                H.table(
-                    t => t.id($"t{tid}").style("border-bottom: 2px solid;"),
-                    mergedChildren
+                H.div(
+                    H.table(
+                        t => t.id($"t{tid}").style("border-bottom: 2px solid;"),
+                        mergedChildren
+                    )
                 )
             ];
 

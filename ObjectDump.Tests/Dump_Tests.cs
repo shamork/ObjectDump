@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MiP.ObjectDump.Tests
 {
     public class Dump_Tests
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public Dump_Tests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         private object GetTestObject()
         {
             // initializ a thrown exception
@@ -57,22 +65,38 @@ namespace MiP.ObjectDump.Tests
 
             string filename = Guid.NewGuid() + ".html";
             HtmlDump.SaveToHtmlFile(filename);
+            _testOutputHelper.WriteLine(filename);
             Process.Start(filename);
         }
         [Fact]
         public void Dump_ToHtml2()
         {
+            new
+                {
+                    a = 1, b = 2, c = true, n = (string)null,
+                    d =
+                        "sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",
+                    e = new
+                    {
+                        a = 1, b = 2, c = true,
+                        d =
+                            "sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"
+                    }
+                }
+                .DumpToHtml();
             var list=new List<object>() {
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}}
             };
             list.DumpToHtml("第1次");
+            list.DumpToHtml();
             list.DumpToHtml("第2次");
             // string html = HtmlDump.ToHtml(list, 5);
 
             string filename = Guid.NewGuid() + ".html";
             HtmlDump.SaveToHtmlFile(filename);
+            _testOutputHelper.WriteLine(filename);
             Process.Start(filename);
         }
     }
