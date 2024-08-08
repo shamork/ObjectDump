@@ -1,4 +1,6 @@
-﻿namespace MiP.ObjectDump.Reflection
+﻿using System;
+
+namespace MiP.ObjectDump.Reflection
 {
     /// <summary>
     /// Represents a value which can be represented by a simple string.
@@ -11,6 +13,13 @@
         public DValue(string value)
         {
             Value = value;
+            ValueType = typeof(string);
         }
+        public DValue(string value, Type valueType)
+        {
+            Value = value;
+            this.ValueType = valueType;
+        }
+        public Type ValueType { get; set; }
     }
 }

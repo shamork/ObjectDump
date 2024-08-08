@@ -86,18 +86,6 @@ namespace MiP.ObjectDump.Formatter
                     $"To: {reference.Reference}",
                     H.span(s => s.css("meta")))
             );
-
-//             
-//
-//             Write(
-//                 $"""
-//                  <th title="string">
-//                  """);
-//             WriteString($"To: {reference.Reference}");
-//             Write(
-//                 $"""
-//                  <span class="meta"></span></th>
-//                  """);
         }
 
         private object[] Format(DComplex complex)
@@ -106,8 +94,8 @@ namespace MiP.ObjectDump.Formatter
             // WriteTableTag(tid, $" colspan='2'", complex.TypeHeader);
             var arr = complex.Properties.Select(property =>
             {
-                var tr= (object)H.tr(
-                    H.th(th => th.css("member").title(property.Value is DValue dv?dv.Value.GetType():property.Value.GetType()), property.Name, H.span(s => s.css("meta"))),
+                var tr = (object)H.tr(
+                    H.th(th => th.css("member").title(property.Value is DValue dv ? dv.ValueType : property.Value.GetType()), property.Name, H.span(s => s.css("meta"))),
                     H.td(td => td.css("value"), (object[])Format((dynamic)property.Value))
                 );
                 return tr;
@@ -129,50 +117,41 @@ namespace MiP.ObjectDump.Formatter
                 CreateColumnHeaders(array.Columns).Concat(
                     array.Items.Select(item =>
                     {
-                        var isNumber = item is DValue dv && dv.Value != null && dv.Value.All(c => (c >= '0' && c <= '9') || c == '.');
                         // Write(isNumber ? $"<td{colspan} class=\"n\">" : $"<td{colspan}>");
                         // Format(item);
                         // return Write("</td>");
-
+                        if (item is DComplex dc)
+                            return H.tr(FormatArrayItem(dc, array.Columns, columnCount).Select(x => (object)x).ToArray());
+                        var isNumber = IsNumber(item);
                         return H.tr(
-                            H.td(td=>td.colspan(columnCount).css(isNumber?"n":""),(object[])Format((dynamic)item))
-                            );
+                            H.td(td => td.colspan(columnCount).css(isNumber ? "n" : ""), (object[])Format((dynamic)item))
+                        );
                     })
                 ).ToArray()
             );
-            //
-            // WriteTableTag(tid, colspan, array.TypeHeader);
-            //
-            //
-            // CreateColumnHeaders(array.Columns);
-            //
-            // foreach (var item in array.Items)
-            // {
-            //     Write("<tr>");
-            //
-            //     WriteArrayItem(item, array.Columns, colspan);
-            //
-            //     Write("</tr>");
-            // }
-            //
-            // return Write("</table>");
         }
 
-//         private object WriteTableTag(int tid, string colspan, string typeHeader)
-//         {
-//             Write($"<table id=\"t{tid}\" style=\"border-bottom: 2px solid;\">");
-//             return Write(
-//                 $"""
-//                  <thead>
-//                      <tr>
-//                          <td class="typeheader" {colspan}><a class="typeheader" onclick="return toggle('t{tid}');"><span
-//                                      class="arrow-up" id="t{tid}ud"></span>{typeHeader}</a><span
-//                                  class="meta"></span></td>
-//                      </tr>
-//                  </thead>
-//                  """
-//             );
-//         }
+        private HElement[] FormatArrayItem(DComplex complex, IReadOnlyDictionary<string, int> columns, int colSpan)
+        {
+            return columns.OrderBy(c => c.Value).Select(column =>
+            {
+                var property = complex.Properties.FirstOrDefault(p => p.Name == column.Key);
+                if (property != null)
+                {
+                    var isNumber = IsNumber(property.Value);
+                    return H.td(td => td.css((isNumber ? "n" : "")), (object[])Format((dynamic)property.Value));
+                }
+                else
+                {
+                    return H.td(); // add empty column
+                }
+            }).ToArray();
+        }
+
+        private static bool IsNumber(DObject dobj)
+        {
+            return dobj is DValue dv && dv.ValueType.IsValueType;
+        }
 
         private object[] CreateTable(int tid, int colspan, string typeHeader, params object[] children)
         {
@@ -181,7 +160,7 @@ namespace MiP.ObjectDump.Formatter
                 H.thead(
                     H.tr(
                         H.td(td => td.css("typeheader").colspan(colspan < 1 ? 1 : colspan),
-                            H.a(a => a.css("typeheader").onclick($"return toggle('t{tid}');"), H.span(s => s.css("arrow-up").id($"t{tid}ud")), typeHeader ),
+                            H.a(a => a.css("typeheader").onclick($"return toggle('t{tid}');"), H.span(s => s.css("arrow-up").id($"t{tid}ud")), typeHeader),
                             CreateMetaSpan()
                         )
                     )
@@ -221,9 +200,10 @@ namespace MiP.ObjectDump.Formatter
             if (columns.Count <= 1)
                 return [];
 
-            return [
-            H.tr(
-                columns.OrderBy(c => c.Value).Select(column => H.th(th => th.title("string"), column.Key, CreateMetaSpan()))
+            return
+            [
+                H.tr(
+                    columns.OrderBy(c => c.Value).Select(column => H.th(th => th.title("string"), column.Key, CreateMetaSpan()))
                 )
             ];
         }

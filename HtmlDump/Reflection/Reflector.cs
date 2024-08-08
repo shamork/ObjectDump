@@ -19,7 +19,7 @@ namespace MiP.ObjectDump.Reflection
                     return DObject.Null;
                 if (item is string st) return new DValue(st);
                 if (IsSimpleType(item))
-                    return GetSimpleValue(item);
+                    return GetSimpleValue(item,item.GetType());
                 if (!(item is ValueType))
                 {
                     // TODO: change checking for cyclic: always create objects on current object first, then members of children.
@@ -201,9 +201,9 @@ namespace MiP.ObjectDump.Reflection
             return false;
         }
 
-        private DValue GetSimpleValue(object item)
+        private DValue GetSimpleValue(object item, Type itemType)
         {
-            return new DValue(item.ToString()); // create extension points here to provide formatting, maybe use IConvertible
+            return new DValue(item.ToString(), itemType); // create extension points here to provide formatting, maybe use IConvertible
         }
 
         private readonly Type[] _simpleTypes =
@@ -214,7 +214,7 @@ namespace MiP.ObjectDump.Reflection
             typeof(int), typeof(uint),
             typeof(long), typeof(ulong),
             typeof(decimal), typeof(double), typeof(float),
-            typeof(DateTime), typeof(TimeSpan)
+            typeof(DateTime), typeof(TimeSpan), typeof(DateTimeOffset),typeof(char)
         ];
 
         private bool IsSimpleType(object item)

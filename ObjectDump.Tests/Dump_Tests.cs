@@ -68,9 +68,28 @@ namespace MiP.ObjectDump.Tests
             _testOutputHelper.WriteLine(filename);
             Process.Start(filename);
         }
+
+        class data
+        {
+            public int a { get; set; }
+            public string b { get; set; }
+            public bool c { get; set; }
+            public string n { get; set; }
+        }
         [Fact]
         public void Dump_ToHtml2()
         {
+            new List<data>()
+            { 
+                new data{ a = 1, b = "b2", c = true, n = (string)null,},
+                new data{ a = 1, b = "b23", c = true, n = (string)null,},
+            }.DumpToHtml();
+            new List<string>() { "1", "ab" }.DumpToHtml("简单列表");
+            new List<object>()
+            { 
+                new { a = 1, b = 2, c = true, n = (string)null,chr='a'},
+                new { a = 1, b = 2, c = true, n = (string)null,chr='A'},
+            }.DumpToHtml("复杂列表");
             new
                 {
                     a = 1, b = 2, c = true, n = (string)null,
@@ -83,16 +102,18 @@ namespace MiP.ObjectDump.Tests
                             "sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"
                     }
                 }
-                .DumpToHtml();
+                .DumpToHtml("嵌套对象");
             var list=new List<object>() {
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}}
             };
-            list.DumpToHtml("第1次");
+            list.DumpToHtml("第1次-嵌套对象列表");
+            "字符串无标签".DumpToHtml();
+            "列表无标签".DumpToHtml("下一行信息，字符串Dump");
             list.DumpToHtml();
-            list.DumpToHtml("第2次");
-            // string html = HtmlDump.ToHtml(list, 5);
+            list.DumpToHtml("第2次-嵌套对象列表");
+            string html = HtmlDump.ToHtml(list, 5);
 
             string filename = Guid.NewGuid() + ".html";
             HtmlDump.SaveToHtmlFile(filename);

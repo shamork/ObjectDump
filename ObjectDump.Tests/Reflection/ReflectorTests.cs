@@ -39,7 +39,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(17, 5);
 
-            result.Should().BeEquivalentTo(new DValue("17"), o => o.IncludingAllRuntimeProperties());
+            result.Should().BeEquivalentTo(new DValue("17",typeof(int)), o => o.IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(true, 5);
 
-            result.Should().BeEquivalentTo(new DValue("True"), o => o.IncludingAllRuntimeProperties());
+            result.Should().BeEquivalentTo(new DValue("True",typeof(bool)), o => o.IncludingAllRuntimeProperties());
         }
 
         [Fact]
@@ -60,9 +60,9 @@ namespace MiP.ObjectDump.Tests.Reflection
                 TypeHeader = "Int32[] (3 items)"
             };
 
-            expected.Add(new DValue("1"));
-            expected.Add(new DValue("2"));
-            expected.Add(new DValue("3"));
+            expected.Add(new DValue("1",typeof(int)));
+            expected.Add(new DValue("2",typeof(int)));
+            expected.Add(new DValue("3",typeof(int)));
 
             result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
@@ -77,9 +77,9 @@ namespace MiP.ObjectDump.Tests.Reflection
                 TypeHeader = "List<int> (3 items)"
             };
 
-            expected.Add(new DValue("1"));
-            expected.Add(new DValue("2"));
-            expected.Add(new DValue("3"));
+            expected.Add(new DValue("1",typeof(int)));
+            expected.Add(new DValue("2",typeof(int)));
+            expected.Add(new DValue("3",typeof(int)));
 
             result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
@@ -105,11 +105,11 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(new Complex1 { Name_f = "Hello", Name_p = "World", Number_f = 17, Number_p = 42 }, 5);
 
-            DComplex expected = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex1", null);
+            DComplex expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex1", null);
             expected.AddProperty(nameof(Complex1.Name_f), new DValue("Hello"));  // fields will always be before properties
-            expected.AddProperty(nameof(Complex1.Number_f), new DValue("17"));
+            expected.AddProperty(nameof(Complex1.Number_f), new DValue("17",typeof(int)));
             expected.AddProperty(nameof(Complex1.Name_p), new DValue("World"));
-            expected.AddProperty(nameof(Complex1.Number_p), new DValue("42"));
+            expected.AddProperty(nameof(Complex1.Number_p), new DValue("42",typeof(int)));
 
             result.Should().BeEquivalentTo(expected, o => o.WithStrictOrdering().IncludingAllRuntimeProperties());
         }
@@ -126,8 +126,8 @@ namespace MiP.ObjectDump.Tests.Reflection
             var result = _reflector.GetDObject(complexes, 5);
 
             var expected = new DArray();
-            var dcomplex1 = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex2", null);
-            var dcomplex2 = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex2", null);
+            var dcomplex1 = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex2", null);
+            var dcomplex2 = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex2", null);
 
             dcomplex1.AddProperty("N1", new DValue("Hello"));
             dcomplex1.AddProperty("N2", new DValue("World"));
@@ -148,7 +148,7 @@ namespace MiP.ObjectDump.Tests.Reflection
         {
             var result = _reflector.GetDObject(new Complex3(), 5);
 
-            var expected = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex3", null);
+            var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex3", null);
 
             string systemInvalidoperationexceptionThisIsExpected = "System.InvalidOperationException: This is expected!*";
 
@@ -181,10 +181,10 @@ namespace MiP.ObjectDump.Tests.Reflection
 
             var result = _reflector.GetDObject(four, 5);
 
-            var expected = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex4", null);
-            var fiveExpected = new DComplex("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex5", null);
+            var expected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", null);
+            var fiveExpected = new DComplex("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex5", null);
             expected.AddProperty("Five", fiveExpected);
-            fiveExpected.AddProperty("Four", new CyclicReference("MiP.HtmlDump.Tests.Reflection.ReflectorTests+Complex4", Check_if_its_a_Guid));
+            fiveExpected.AddProperty("Four", new CyclicReference("MiP.ObjectDump.Tests.Reflection.ReflectorTests+Complex4", Check_if_its_a_Guid));
 
             result.Should().BeEquivalentTo(expected, o => o.IncludingAllRuntimeProperties()
                                                          .Using<string>(IsGuid)
