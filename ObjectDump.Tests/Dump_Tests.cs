@@ -81,10 +81,10 @@ namespace MiP.ObjectDump.Tests
         {
             new List<data>()
             { 
-                new data{ a = 1, b = "b2", c = true, n = (string)null,},
-                new data{ a = 1, b = "b23", c = true, n = (string)null,},
+                new data{ a = 1, b = "b2下面\\n换行\n这是新行", c = true, n = (string)null,},
+                new data{ a = 1, b = "b23下面\\n换行\n这是新行", c = true, n = (string)null,},
             }.DumpToHtml();
-            new List<string>() { "1", "ab" }.DumpToHtml("简单列表");
+            new List<string>() { "1", "ab下面\\n换行\n这是新行" }.DumpToHtml("简单列表");
             new List<object>()
             { 
                 new { a = 1, b = 2, c = true, n = (string)null,chr='a'},
