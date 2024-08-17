@@ -22,8 +22,10 @@ namespace MiP.ObjectDump.Reflection
                     return GetSimpleValue(item,item.GetType());
                 if (item.GetType().IsEnum)
                 {
-                    return GetSimpleValue($"{(long)item} [{item}]", item.GetType());
+                    var en = (Enum)item;
+                    return GetSimpleValue($"{en.ToString("D")} [{item}]", item.GetType());
                 }
+
                 if (!(item is ValueType))
                 {
                     // TODO: change checking for cyclic: always create objects on current object first, then members of children.
