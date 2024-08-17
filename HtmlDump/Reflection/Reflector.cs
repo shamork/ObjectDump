@@ -20,6 +20,10 @@ namespace MiP.ObjectDump.Reflection
                 if (item is string st) return new DValue(st);
                 if (IsSimpleType(item))
                     return GetSimpleValue(item,item.GetType());
+                if (item.GetType().IsEnum)
+                {
+                    return GetSimpleValue($"{(long)item} [{item}]", item.GetType());
+                }
                 if (!(item is ValueType))
                 {
                     // TODO: change checking for cyclic: always create objects on current object first, then members of children.
@@ -217,9 +221,21 @@ namespace MiP.ObjectDump.Reflection
             typeof(DateTime), typeof(TimeSpan), typeof(DateTimeOffset),typeof(char)
         ];
 
+        private static readonly Type[] _numberTypes =
+        [
+            typeof(byte), typeof(sbyte),
+            typeof(short), typeof (ushort),
+            typeof(int), typeof(uint),
+            typeof(long), typeof(ulong),
+            typeof(decimal), typeof(double), typeof(float),
+        ];
         private bool IsSimpleType(object item)
         {
             return _simpleTypes.Any(t => t == item?.GetType());
+        }
+        internal static bool IsNumber(object item)
+        {
+            return _numberTypes.Any(t => t == item?.GetType());
         }
     }
 }

@@ -122,13 +122,23 @@ namespace MiP.ObjectDump.Formatter
                         // return Write("</td>");
                         if (item is DComplex dc)
                             return H.tr(FormatArrayItem(dc, array.Columns, columnCount).Select(x => (object)x).ToArray());
-                        var isNumber = IsNumber(item);
                         return H.tr(
-                            H.td(td => td.colspan(columnCount).css(isNumber ? "n" : ""), (object[])Format((dynamic)item))
+                            H.td(td => td.colspan(columnCount).css(GetCss(item)), (object[])Format((dynamic)item))
                         );
                     })
                 ).ToArray()
             );
+        }
+
+        private string GetCss(DObject item)
+        {
+            var isNumber = IsNumber(item);
+            (bool isBoolean, bool True) = isBool(item);
+            return isBoolean
+                ? (True ? "true" : "false")
+                : isNumber
+                    ? "n"
+                    : "";
         }
 
         private HElement[] FormatArrayItem(DComplex complex, IReadOnlyDictionary<string, int> columns, int colSpan)
@@ -138,8 +148,7 @@ namespace MiP.ObjectDump.Formatter
                 var property = complex.Properties.FirstOrDefault(p => p.Name == column.Key);
                 if (property != null)
                 {
-                    var isNumber = IsNumber(property.Value);
-                    return H.td(td => td.css((isNumber ? "n" : "")), (object[])Format((dynamic)property.Value));
+                    return H.td(td => td.css(GetCss(property.Value)), (object[])Format((dynamic)property.Value));
                 }
                 else
                 {
@@ -150,7 +159,12 @@ namespace MiP.ObjectDump.Formatter
 
         private static bool IsNumber(DObject dobj)
         {
-            return dobj is DValue dv && dv.ValueType.IsValueType;
+            return dobj is DValue dv && Reflector.IsNumber(dv.ValueType);
+        }
+        private static (bool isBoolean,bool True) isBool(DObject dobj)
+        {
+            var isBoolean= dobj is DValue dv && dv.ValueType==typeof(Boolean);
+            return (isBoolean, isBoolean && dobj is DValue dv1 && dv1.Value == "True");
         }
 
         private object[] CreateTable(int tid, int colspan, string typeHeader, params object[] children)
