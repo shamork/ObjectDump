@@ -10,8 +10,7 @@ namespace MiP.ObjectDump.Formatter
     public class HtmlFormatter
     {
         private int tableId = 1;
-        private TextWriter _writer;
-        private List<object> Children = new List<object>();
+        private List<object> Children = new();
         public object[] GetChildren() => Children.ToArray();
 
         public HtmlFormatter()
@@ -123,7 +122,7 @@ namespace MiP.ObjectDump.Formatter
                         if (item is DComplex dc)
                             return H.tr(FormatArrayItem(dc, array.Columns, columnCount).Select(x => (object)x).ToArray());
                         return H.tr(
-                            H.td(td => td.colspan(columnCount).css(GetCss(item)), (object[])Format((dynamic)item))
+                            H.td(td => td.colspan(columnCount).setCls(GetCss(item)), (object[])Format((dynamic)item))
                         );
                     })
                 ).ToArray()
@@ -148,7 +147,7 @@ namespace MiP.ObjectDump.Formatter
                 var property = complex.Properties.FirstOrDefault(p => p.Name == column.Key);
                 if (property != null)
                 {
-                    return H.td(td => td.css(GetCss(property.Value)), (object[])Format((dynamic)property.Value));
+                    return H.td(td => td.setCls(GetCss(property.Value)), (object[])Format((dynamic)property.Value));
                 }
                 else
                 {
@@ -265,6 +264,19 @@ namespace MiP.ObjectDump.Formatter
         public static IChain<T> onclick<T>(this IChain<T> attributes, object value) where T : HAttribute, new()
         {
             return attributes.Join<T>((T)new T().Create("onclick", value));
+        }
+
+        /// <summary>
+        /// 如果clsName为空，则无任何副作用
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="clsName"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IChain<T> setCls<T>(this IChain<T> item, string clsName) where T : HAttribute, new()
+        {
+            if (!string.IsNullOrEmpty(clsName)) return item.css(clsName);
+            return item;
         }
     }
 }

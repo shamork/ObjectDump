@@ -20,7 +20,6 @@ namespace MiP.ObjectDump
         }
 
         private static long defaultIndex = 1;
-        private static long minIndex = 0;
         private static ConcurrentBag<(long index, object item, string label)> defaultBag = new();
 
         public static T DumpToHtml<T>(this T item, string label = null)

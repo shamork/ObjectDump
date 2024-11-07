@@ -99,7 +99,6 @@ namespace MiP.ObjectDump
                                       }
                                       """;
 
-        private static HDoc HDoc;
 
         public static HDoc CreateHtml(bool writeDocType, string title, string styles, params object[] bodyChildren)
         {
