@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -69,6 +70,51 @@ namespace MiP.ObjectDump.Tests
             Process.Start(filename);
         }
 
+        [Fact]
+        public void Dump_ToHtml_should_escape()
+        {
+            var arr=new[]
+            {
+                "<<STAT_ENTER>>",
+                "<123123123>",
+                " &&& ",
+            };
+
+            var str=HtmlDump.ToHtml(arr);
+            Assert.DoesNotContain("<<STAT_ENTER>>", str);
+            Assert.DoesNotContain("<123123123>", str);
+            Assert.DoesNotContain(" &&& ", str);
+        }
+        [Fact]
+        public void Dump_ToHtml_obj_should_escape()
+        {
+            var arr = new object[]
+                {
+                    new
+                    {
+                        stackTrace = new object[]
+                        {
+                            "grand mother",
+                            "<<KEYU01>>",
+                            "<<KEYS01>>",
+                            " &&mother "
+                        },
+                        files = new object[]
+                        {
+                            @"D:\shamork\Sync\WeChat\WeChat Files\fumaoyan\FileStorage\File\2024-11\log_57.txt"
+                        },
+                        index = "1",
+                        Count = "1",
+
+                    }
+                }
+                ;
+            var str = HtmlDump.ToHtml(arr);
+            _testOutputHelper.WriteLine(str);
+            Assert.DoesNotContain("<<KEYS01>>", str);
+            Assert.DoesNotContain(" &&mother ", str);
+            Assert.DoesNotContain("grand mother", str);
+        }
         class data
         {
             public int a { get; set; }
@@ -104,6 +150,13 @@ namespace MiP.ObjectDump.Tests
                 }
                 .DumpToHtml("嵌套对象");
             var list=new List<object>() {
+                new []
+                {                    
+                    "grand mother",
+                    "<<KEYU01>>",
+                    "<<KEYS01>>",
+                    " &&mother "
+                },
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}},
                 new {a=1,b=2,c=true,n=(string)null,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf",e=new {a=1,b=2,c=true,d="sdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf\r\nsdfasdfalskdfjalsdfadfadfadf"}}

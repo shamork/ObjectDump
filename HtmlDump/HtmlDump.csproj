@@ -3,7 +3,7 @@
     <RootNamespace>HtmlDump</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>HtmlDump</AssemblyTitle>
-    <Version>0.8.2.0</Version>
+    <Version>0.9.0</Version>
     <PackageId>HtmlDump</PackageId>
     <LangVersion>latest</LangVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -23,7 +23,7 @@
     <EmbeddedResource Include="styles.css" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hyperlinq" Version="1.1.17" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 </Project>
