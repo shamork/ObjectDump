@@ -36,7 +36,63 @@ namespace MiP.ObjectDump.Formatter
                 #floating-buttons button:hover {
                     background-color: #ddd;
                 }
-
+                
+                
+                /*筛选*/
+                .filter-btn {
+                    cursor: pointer;
+                    margin-left: 5px;
+                    font-size: 12px;
+                    color: #666;
+                    user-select: none;
+                }
+                .filter-btn:hover {
+                    color: #333;
+                }
+                .filter-popup {
+                    position: absolute;
+                    background: white;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 10px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    min-width: 200px;
+                }
+                .filter-input {
+                    width: 100%;
+                    padding: 5px;
+                    border: 1px solid #ddd;
+                    border-radius: 3px;
+                    margin-bottom: 8px;
+                    font-size: 12px;
+                }
+                .filter-buttons {
+                    display: flex;
+                    gap: 5px;
+                }
+                .filter-confirm, .filter-clear {
+                    padding: 4px 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 3px;
+                    background: #f5f5f5;
+                    cursor: pointer;
+                    font-size: 11px;
+                }
+                .filter-confirm:hover, .filter-clear:hover {
+                    background: #e5e5e5;
+                }
+                .filter-confirm {
+                    background: #4C74B2;
+                    color: white;
+                    border-color: #4C74B2;
+                }
+                .filter-confirm:hover {
+                    background: #3a5a8a;
+                }
+                .filtered-row {
+                    display: none !important;
+                }
                 """;
         
 
@@ -96,6 +152,220 @@ namespace MiP.ObjectDump.Formatter
                                      		return '!^§Error:' + err.toString();
                                      	}
                                      }
+                                     // 表格筛选功能
+                                     (function() {
+                                         'use strict';
+                                         // 存储每个表格的筛选状态
+                                         const tableFilters = new Map();
+                                         
+                                         // 初始化所有表格的筛选功能
+                                         function initTableFilters() {
+                                             const tables = document.querySelectorAll('table[id]');
+                                             
+                                             tables.forEach(table => {
+                                                 const thead = table.querySelector('thead');
+                                                 if (!thead) return;
+                                                 
+                                                 // 查找包含列头的行（通常是第二行，第一行是标题）
+                                                 const headerRows = thead.querySelectorAll('tr');
+                                                 let headerRow = null;
+                                                 
+                                                 // 找到包含th元素的行
+                                                 for (let row of headerRows) {
+                                                     if (row.querySelectorAll('th').length > 0) {
+                                                         headerRow = row;
+                                                         break;
+                                                     }
+                                                 }
+                                                 
+                                                 if (!headerRow) return;
+                                                 
+                                                 const headers = headerRow.querySelectorAll('th');
+                                                 if (headers.length === 0) return;
+                                                 
+                                                 // 初始化表格筛选状态
+                                                 tableFilters.set(table.id, {
+                                                     filters: new Map(),
+                                                     originalRows: Array.from(table.querySelectorAll('tbody tr'))
+                                                 });
+                                                 
+                                                 // 为每个列头添加筛选按钮
+                                                 headers.forEach((header, index) => {
+                                                     addFilterButton(table, header, index);
+                                                 });
+                                             });
+                                         }
+                                         
+                                         // 为列头添加筛选按钮
+                                         function addFilterButton(table, header, columnIndex) {
+                                             const filterBtn = document.createElement('span');
+                                             filterBtn.className = 'filter-btn';
+                                             filterBtn.innerHTML = '🔽'; // 漏斗图标
+                                             filterBtn.title = '筛选此列';
+                                             
+                                             filterBtn.addEventListener('click', (e) => {
+                                                 e.stopPropagation();
+                                                 showFilterPopup(filterBtn, table, header, columnIndex, e);
+                                             });
+                                             
+                                             header.appendChild(filterBtn);
+                                         }
+                                         
+                                         // 显示筛选悬浮框
+                                         function showFilterPopup(filterBtn, table, header, columnIndex, event) {
+                                             // 移除已存在的悬浮框
+                                             const existingPopup = document.querySelector('.filter-popup');
+                                             if (existingPopup) {
+                                                 existingPopup.remove();
+                                             }
+                                             
+                                             const popup = document.createElement('div');
+                                             popup.className = 'filter-popup';
+                                             
+                                             const input = document.createElement('input');
+                                             input.type = 'text';
+                                             input.className = 'filter-input';
+                                             input.placeholder = '输入筛选内容...';
+                                             
+                                             const buttonsDiv = document.createElement('div');
+                                             buttonsDiv.className = 'filter-buttons';
+                                             
+                                             const confirmBtn = document.createElement('button');
+                                             confirmBtn.className = 'filter-confirm';
+                                             confirmBtn.textContent = '确定';
+                                             
+                                             const clearBtn = document.createElement('button');
+                                             clearBtn.className = 'filter-clear';
+                                             clearBtn.textContent = '清除';
+                                             
+                                             buttonsDiv.appendChild(confirmBtn);
+                                             buttonsDiv.appendChild(clearBtn);
+                                             
+                                             popup.appendChild(input);
+                                             popup.appendChild(buttonsDiv);
+                                             
+                                             // 定位悬浮框
+                                             document.body.appendChild(popup);
+                                             const rect = header.getBoundingClientRect();
+                                             popup.style.left = header.offsetLeft + 'px';
+                                             popup.style.top = (header.offsetTop+header.offsetHeight + 5) + 'px';
+                                             
+                                             // 获取当前筛选值
+                                             const tableFilter = tableFilters.get(table.id);
+                                             const currentFilter = tableFilter.filters.get(columnIndex) || '';
+                                             input.value = currentFilter;
+                                             
+                                             // 聚焦输入框
+                                             input.focus();
+                                             input.select();
+                                             
+                                             // 确定按钮事件
+                                             const applyFilter = () => {
+                                                 const filterValue = input.value.trim();
+                                                 applyColumnFilter(table, columnIndex, filterValue);
+                                                 if(filterValue&&filterValue.length>0){
+                                                 	filterBtn.innerHTML = '♒'; // 漏斗图标
+                                            	filterBtn.title = '已筛选此列：【'+filterValue+'】';
+                                                 }else{
+                                                 	filterBtn.innerHTML = '🔽'; // 漏斗图标
+                                            	filterBtn.title = '筛选此列';
+                                                 }
+                                                 popup.remove();
+                                             };
+                                             
+                                             
+                                             confirmBtn.addEventListener('click', applyFilter);
+                                             clearBtn.addEventListener('click', () => {
+                                                 applyColumnFilter(table, columnIndex, '');
+                                                 popup.remove();
+                                                 filterBtn.innerHTML = '🔽'; // 漏斗图标
+                                                 filterBtn.title = '筛选此列';
+                                             });
+                                             
+                                             // 回车键确定
+                                             input.addEventListener('keydown', (e) => {
+                                                 if (e.key === 'Enter') {
+                                                     e.preventDefault();
+                                                     applyFilter();
+                                                 } else if (e.key === 'Escape') {
+                                                     popup.remove();
+                                                 }
+                                             });
+                                             
+                                             // 点击外部关闭
+                                             const closeOnClickOutside = (e) => {
+                                                 if (!popup.contains(e.target)) {
+                                                     popup.remove();
+                                                     document.removeEventListener('click', closeOnClickOutside);
+                                                 }
+                                             };
+                                             
+                                             setTimeout(() => {
+                                                 document.addEventListener('click', closeOnClickOutside);
+                                             }, 0);
+                                         }
+                                         
+                                         // 应用列筛选
+                                         function applyColumnFilter(table, columnIndex, filterValue) {
+                                             const tableFilter = tableFilters.get(table.id);
+                                             if (!tableFilter) return;
+                                             
+                                             // 更新筛选状态
+                                             if (filterValue) {
+                                                 tableFilter.filters.set(columnIndex, filterValue);
+                                             } else {
+                                                 tableFilter.filters.delete(columnIndex);
+                                             }
+                                             
+                                             // 应用所有筛选
+                                             applyAllFilters(table);
+                                         }
+                                         
+                                         // 应用所有筛选条件
+                                         function applyAllFilters(table) {
+                                             const tableFilter = tableFilters.get(table.id);
+                                             if (!tableFilter) return;
+                                             
+                                             const tbody = table.querySelector('tbody');
+                                             if (!tbody) return;
+                                             
+                                             const rows = tbody.querySelectorAll('tr');
+                                             
+                                             rows.forEach(row => {
+                                                 let shouldShow = true;
+                                                 
+                                                 // 检查每个筛选条件
+                                                 for (let [columnIndex, filterValue] of tableFilter.filters) {
+                                                     const cell = row.cells[columnIndex];
+                                                     if (cell) {
+                                                         const cellText = cell.textContent || cell.innerText || '';
+                                                         if (!cellText.toLowerCase().includes(filterValue.toLowerCase())) {
+                                                             shouldShow = false;
+                                                             break;
+                                                         }
+                                                     }
+                                                 }
+                                                 
+                                                 // 显示或隐藏行
+                                                 if (shouldShow) {
+                                                     row.classList.remove('filtered-row');
+                                                 } else {
+                                                     row.classList.add('filtered-row');
+                                                 }
+                                             });
+                                         }
+                                         
+                                         // 页面加载完成后初始化
+                                         if (document.readyState === 'loading') {
+                                             document.addEventListener('DOMContentLoaded', initTableFilters);
+                                         } else {
+                                             initTableFilters();
+                                         }
+                                         
+                                         // 导出全局函数，方便手动调用
+                                         window.initTableFilters = initTableFilters;
+                                         
+                                     })();
                                      """;
         #endregion
         private readonly HtmlDocument doc;
@@ -264,6 +534,7 @@ namespace MiP.ObjectDump.Formatter
             return CreateTable(
                 tid,
                 2,
+                null,
                 $"Cyclic reference {reference.TypeHeader}",
                 CreateTH("string",
                     text: $"To: {reference.Reference}",
@@ -286,6 +557,7 @@ namespace MiP.ObjectDump.Formatter
             return CreateTable(
                 tid,
                 2,
+                null,
                 complex.TypeHeader,
                 arr
             );
@@ -296,20 +568,22 @@ namespace MiP.ObjectDump.Formatter
             int columnCount = array.Columns.Count;
             // string colspan = columnCount > 1 ? $" colspan='{columnCount}'" : string.Empty;
             var tid = tableId++;
-            return CreateTable(tid, columnCount, array.TypeHeader,
-                CreateColumnHeaders(array.Columns).Concat(
-                    array.Items.Select(item =>
-                    {
-                        // Write(isNumber ? $"<td{colspan} class=\"n\">" : $"<td{colspan}>");
-                        // Format(item);
-                        // return Write("</td>");
-                        if (item is DComplex dc)
-                            return CreateE("tr", FormatArrayItem(dc, array.Columns, columnCount).Select(x => (HtmlNode)x).ToArray());
-                        var td = (HtmlNode)CreateE("td", GetCss(item), Format((dynamic)item));
-                        td.Attributes.Add("colspan", columnCount.ToString());
-                        return CreateE("tr", td);
-                    })
-                ).ToArray()
+            return CreateTable(
+                tid,
+                columnCount,
+                CreateColumnHeaderTr(array.Columns),
+                array.TypeHeader,
+                array.Items.Select(item =>
+                {
+                    // Write(isNumber ? $"<td{colspan} class=\"n\">" : $"<td{colspan}>");
+                    // Format(item);
+                    // return Write("</td>");
+                    if (item is DComplex dc)
+                        return CreateE("tr", FormatArrayItem(dc, array.Columns, columnCount).Select(x => (HtmlNode)x).ToArray());
+                    var td = (HtmlNode)CreateE("td", GetCss(item), Format((dynamic)item));
+                    td.Attributes.Add("colspan", columnCount.ToString());
+                    return CreateE("tr", td);
+                }).ToArray()
             );
         }
 
@@ -349,22 +623,26 @@ namespace MiP.ObjectDump.Formatter
             return (isBoolean, isBoolean && dobj is DValue dv1 && dv1.Value == "True");
         }
 
-        private HtmlNode[] CreateTable(int tid, int colspan, string typeHeader, params HtmlNode[] children)
+        private HtmlNode[] CreateTable(int tid, int colspan,HtmlNode headerRowTrEle,  string typeHeader,params HtmlNode[] children)
         {
-            var mergedChildren = new[]
-            {
-                CreateE("thead",
-                    CreateE("tr",
-                        CreateTd(colspan < 1 ? 1 : colspan, ("typeheader"),
-                            CreateE("a", "typeheader")
-                                .onclick($"return toggle('t{tid}');")
-                                .AddChildren(CreateE("span", "arrow-up").AddAttr("id", $"t{tid}ud"))
-                                .AddText(typeHeader),
-                            CreateMetaSpan()
-                        )
+            var headerRows =
+            new []{
+                CreateE("tr",
+                    CreateTd(colspan < 1 ? 1 : colspan, ("typeheader"),
+                        CreateE("a", "typeheader")
+                            .onclick($"return toggle('t{tid}');")
+                            .AddChildren(CreateE("span", "arrow-up").AddAttr("id", $"t{tid}ud"))
+                            .AddText(typeHeader),
+                        CreateMetaSpan()
                     )
-                )
-            }.Concat(children).ToArray();
+                ),
+                headerRowTrEle
+            }.Where(x=>x!=null).ToArray();
+            var mergedChildren = new[]
+            { 
+                CreateE("thead",headerRows),
+                CreateE("tbody",children)
+            };
             return
             [
                 CreateE("div",
@@ -374,19 +652,6 @@ namespace MiP.ObjectDump.Formatter
                         .AddChildren(mergedChildren)
                 )
             ];
-
-//             return Write(
-//                 $"""
-//                  <thead>
-//                      <tr>
-//                          <td class="typeheader" {colspan}>
-//                          <a class="typeheader" onclick="return toggle('t{tid}');">
-//                          <span class="arrow-up" id="t{tid}ud"></span>{typeHeader}</a>
-//                                      <span class="meta"></span></td>
-//                      </tr>
-//                  </thead>
-//                  """
-//             );
         }
 
         private HtmlNode CreateMetaSpan()
@@ -394,20 +659,33 @@ namespace MiP.ObjectDump.Formatter
             return CreateE("span", "meta");
         }
 
-        private HtmlNode[] CreateColumnHeaders(IReadOnlyDictionary<string, int> columns)
+        // private HtmlNode[] CreateColumnHeaders(IReadOnlyDictionary<string, int> columns)
+        // {
+        //     if (columns.Count <= 1)
+        //         return [];
+        //
+        //     return
+        //     [
+        //         CreateE("tr",
+        //             columns
+        //                 .OrderBy(c => c.Value)
+        //                 .Select(column => CreateTH(null, "string", column.Key, CreateMetaSpan()))
+        //                 .ToArray()
+        //         )
+        //     ];
+        // }
+        
+        private HtmlNode CreateColumnHeaderTr(IReadOnlyDictionary<string, int> columns)
         {
             if (columns.Count <= 1)
-                return [];
+                return null;
 
-            return
-            [
-                CreateE("tr",
-                    columns
-                        .OrderBy(c => c.Value)
-                        .Select(column => CreateTH(null, "string", column.Key, CreateMetaSpan()))
-                        .ToArray()
-                )
-            ];
+            return CreateE("tr",
+                columns
+                    .OrderBy(c => c.Value)
+                    .Select(column => CreateTH(null, "string", column.Key, CreateMetaSpan()))
+                    .ToArray()
+            );
         }
 
         // private object WriteArrayItem(DObject item, IReadOnlyDictionary<string, int> columns, string colspan)

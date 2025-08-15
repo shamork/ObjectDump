@@ -3,12 +3,12 @@
     <RootNamespace>HtmlDump</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyTitle>HtmlDump</AssemblyTitle>
-    <Version>0.9.0</Version>
+    <Version>0.10.0</Version>
     <PackageId>HtmlDump</PackageId>
     <LangVersion>latest</LangVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>移除空白的class；支持\r\n自动转换成br标签。支持bool类型，支持枚举，优化数字类型的判断。</PackageReleaseNotes>
+    <PackageReleaseNotes>移除空白的class；支持\r\n自动转换成br标签。支持bool类型，支持枚举，优化数字类型的判断。支持筛选。</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
